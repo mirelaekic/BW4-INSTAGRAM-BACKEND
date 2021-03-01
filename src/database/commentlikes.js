@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   );
   CommentLike.associate = (models) => {
     CommentLike.belongsTo(models.Comment);
+    CommentLike.belongsTo(models.Reply);
     CommentLike.belongsTo(models.User);
   };
   return CommentLike;

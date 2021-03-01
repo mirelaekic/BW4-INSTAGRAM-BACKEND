@@ -9,6 +9,12 @@ const Comment = require("./comments");
 const Like = require("./likes");
 const CommentLike = require("./commentlikes");
 const Follower = require("./follower");
+const Story = require("./stories");
+const SavedPost = require("./savedposts");
+const StoryAlbum = require("./storyalbum");
+const Reply = require("./reply");
+const Tagged = require("./tagged");
+const Message = require("./message");
 const sequelize = new Sequelize(
   process.env.PGDATABASE,
   process.env.PGUSER,
@@ -32,6 +38,12 @@ const models = {
   Follower: Follower(sequelize, DataTypes),
   Comment: Comment(sequelize, DataTypes),
   Like: Like(sequelize, DataTypes),
+  Story: Story(sequelize, DataTypes),
+  Reply: Reply(sequelize, DataTypes),
+  Tagged: Tagged(sequelize, DataTypes),
+  Message: Message(sequelize, DataTypes),
+  SavedPost: SavedPost(sequelize, DataTypes),
+  StoryAlbum: StoryAlbum(sequelize, DataTypes),
   CommentLike: CommentLike(sequelize, DataTypes),
 };
 Object.keys(models).forEach((modelName) => {

@@ -1,15 +1,15 @@
 /** @format */
 
 module.exports = (sequelize, DataTypes) => {
-  const Post = sequelize.define(
-    "post",
+  const Story = sequelize.define(
+    "story",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      description: {
+      text: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -20,12 +20,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     { timestamps: true }
   );
-  Post.associate = (models) => {
-    Post.belongsTo(models.User);
-    Post.hasMany(models.Comment);
-    Post.hasMany(models.Like);
-    Post.hasMany(models.Tagged);
-    Post.hasMany(models.SavedPost);
+  Story.associate = (models) => {
+    Story.belongsTo(models.User);
+    Story.belongsTo(models.StoryAlbum);
   };
-  return Post;
+  return Story;
 };
