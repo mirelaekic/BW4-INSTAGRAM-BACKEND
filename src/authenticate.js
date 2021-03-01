@@ -13,7 +13,7 @@ const authenticate = async (req, res, next) => {
         res.sendStatus(403);
       }
       console.log("user", user);
-      const user = await User.findByPk(user.id);
+      const profile = await User.findByPk(user.id);
       console.log(profile);
       req.profile = profile;
       next();
