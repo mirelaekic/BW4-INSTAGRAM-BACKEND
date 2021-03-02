@@ -56,15 +56,17 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const StoryToDelete = await Story.findByPk(req.params.id);
-    if (StoryToDelete.userId === req.user.id) {
+    const StoryToEdit = await Story.findByPk(req.params.id);
+    console.log(StoryToEdit.dataValues.userId);
+    console.log(req.user.dataValues.id);
+    if (StoryToEdit.userId === req.user.id) {
       const alteredPosts = await Story.update(req.body, {
         where: { id: req.params.id },
         returning: true,
       });
       res.send(alteredPosts);
     } else {
-      res.status(401).send("unauthorized");
+      res.status(401).send("Unauthorized: You can only edit your own stories!");
     }
   } catch (error) {
     console.log(error);
