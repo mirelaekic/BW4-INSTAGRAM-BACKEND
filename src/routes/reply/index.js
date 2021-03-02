@@ -19,7 +19,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
     try {
-        const newReply = await Reply.create(req.body); //.create IS A SEQUELIZE METHOD DOR MODELS, IT CREATES A NEW ROW IN THE TABLE
+        const newReply = await Reply.create(req.body); 
         res.status(201).send(newReply);
     } catch (error) {
         console.log(error);

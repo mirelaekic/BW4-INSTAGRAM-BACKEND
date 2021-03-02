@@ -4,6 +4,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
 const User = require("./users");
 const Post = require("./posts");
+const Room = require("./rooms");
 const Follow = require("./follow");
 const Comment = require("./comments");
 const Like = require("./likes");
@@ -32,6 +33,7 @@ const sequelize = new Sequelize(
 );
 
 const models = {
+  Room: Room(sequelize, DataTypes),
   User: User(sequelize, DataTypes),
   Post: Post(sequelize, DataTypes),
   Follow: Follow(sequelize, DataTypes),

@@ -24,18 +24,6 @@ router.post("/:userId/:postId", async (req, res) => {
 
 
 
-// router.get("/:id/comments", async (req, res) => {
-//     try {
-//         const comment = await Comment.findByPk(req.params.id)
-//         const likes = await comment.getLikes()
-//         console.log(likes);
-//         res.send(likes);
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).send("Something went bad!");
-//     }
-// });
-
 router.get("/:userId/:postId/posts", async (req, res) => {
     try {
 
