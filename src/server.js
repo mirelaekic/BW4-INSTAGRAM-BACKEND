@@ -8,6 +8,13 @@ dotenv.config();
 // const pass = require("./passport");
 const database = require("./database");
 
+//socket
+var app = require('http').createServer()
+var io = module.exports.io = require('socket.io')(app)
+const SocketManager = require('./socket.js')
+io.on('connection', SocketManager)
+
+
 const port = process.env.PORT || 9001;
 
 const server = express();
