@@ -1,6 +1,7 @@
 const express = require("express");
 const Post = require("../../database").Post;
 const User = require("../../database").User;
+const Reply = require("../../database").Reply;
 const Comment = require("../../database").Comment;
 const CommentLike = require("../../database").CommentLike;
 const multer = require("multer");
@@ -30,7 +31,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const allComments = await Comment.findAll({
-      include: [Post, User, CommentLike],
+      include: [Post, User, CommentLike, Reply],
     });
     res.send(allComments);
   } catch (error) {
@@ -42,7 +43,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const singleComment = await Comment.findByPk(req.params.id, {
-      include: [Post, User],
+      include: [Post, User, Reply],
     });
     res.send(singleComment);
   } catch (error) {

@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
 
         const singleStory = await Story.findByPk(req.params.id, {
             include: [User],
-        }); //.findByPk RETURNS THE Story WITH THE MATCHING ID
+        });
         res.send(singleStory);
     } catch (error) {
         console.log(error);
