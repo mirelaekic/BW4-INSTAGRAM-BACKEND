@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = (models) => {
-    User.belongsTo(models.Room);
+    User.belongsToMany(models.Room, { through: "User_Room_Relations" });
     User.hasMany(models.Post);
     User.hasMany(models.Comment);
     User.hasMany(models.Reply);
