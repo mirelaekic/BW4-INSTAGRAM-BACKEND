@@ -5,8 +5,8 @@ const Follower = require("../../database").Follower;
 const Story = require("../../database").Story;
 const StoryAlbum = require("../../database").StoryAlbum;
 const Tagged = require("../../database").Tagged;
-const SavedPost = require("../../database").SavedPost;
 const Message = require("../../database").Message;
+const SavedPost = require("../../database").SavedPost;
 
 const jwt = require("jsonwebtoken");
 const authenticate = require("../../authenticate");
@@ -14,7 +14,11 @@ const router = require("express").Router();
 
 router.route("/register").post(async (req, res, next) => {
   try {
-    const newUser = await User.create(req.body);
+    const newUser = await User.create({
+      ...req.body,
+      imgurl:
+        "https://res.cloudinary.com/dhmw620tl/image/upload/v1611844643/benchmark3/i91vqe984yfdir5xp8xh.png",
+    });
     res.send(newUser);
   } catch (error) {
     console.log(error);
@@ -82,8 +86,8 @@ router.get("/:id", authenticate, async (req, res) => {
           Story,
           StoryAlbum,
           Tagged,
-          SavedPost,
           Message,
+          SavedPost,
         ],
       });
       res.send(singleUser);
@@ -108,16 +112,7 @@ router.put("/:id", authenticate, async (req, res) => {
     if (req.user.dataValues.id.toString() === req.params.id) {
       const alteredUser = await User.update(req.body, {
         where: { id: req.params.id },
-        include: [
-          Post,
-          Follow,
-          Follower,
-          Story,
-          StoryAlbum,
-          Tagged,
-          SavedPost,
-          Message,
-        ],
+        include: [Post, Follow, Follower, Story, StoryAlbum, Tagged, Message],
         returning: true,
       });
       res.send(alteredUser);

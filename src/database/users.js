@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       phonenumber: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       imgurl: {
         type: DataTypes.STRING(500),
