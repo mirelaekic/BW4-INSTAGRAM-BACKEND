@@ -6,23 +6,23 @@ const User = require("../../database").User;
 
 const router = express.Router();
 
-router.post("/:userId/:postId", async (req, res) => {
+router.post("/:postId", async (req, res) => {
   try {
     const savedpost = await SavedPost.findOne({
-      where: { userId: req.params.userId, postId: req.params.postId },
+      where: { userId: req.user.dataValues.id, postId: req.params.postId },
     });
     if (savedpost) {
       await SavedPost.destroy({
-        where: { userId: req.params.userId, postId: req.params.postId },
+        where: { userId: req.user.dataValues.id, postId: req.params.postId },
       });
+      res.status(201).send("Post Removed from Saved Posts!");
     } else {
-      const newSavedPost = await SavedPost.create({
-        userId: req.params.userId,
+      await SavedPost.create({
+        userId: req.user.dataValues.id,
         postId: req.params.postId,
       });
+      res.status(201).send("Post Saved!");
     }
-
-    res.status(201).send("ok");
   } catch (error) {
     console.log(error);
     res.status(500).send("Something went bad!");
