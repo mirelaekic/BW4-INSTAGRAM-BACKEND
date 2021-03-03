@@ -23,7 +23,7 @@ router.post("/:commentID", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const allReply = await Reply.findAll({
-      include: [Reply, Post, User],
+      include: [User],
     });
     res.send(allReply);
   } catch (error) {
@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const singleReply = await Reply.findByPk(req.params.id, {
-      include: [Reply, Post, User],
+      include: [User],
     });
     res.send(singleReply);
   } catch (error) {
