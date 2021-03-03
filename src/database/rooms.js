@@ -2,7 +2,7 @@
 
 module.exports = (sequelize, DataTypes) => {
   const Rooms = sequelize.define(
-    "post",
+    "room",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     { timestamps: true }
   );
   Rooms.associate = (models) => {
-    Rooms.hasMany(models.User);
+    Rooms.belongsToMany(models.User, { through: "User_Room_Relations" });
   };
   return Rooms;
 };

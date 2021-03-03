@@ -4,23 +4,16 @@ const User = require("../../database").User;
 const Reply = require("../../database").Reply;
 const Comment = require("../../database").Comment;
 const CommentLike = require("../../database").CommentLike;
-const multer = require("multer");
-const cloudinary = require("../../cloudinary");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "samples",
-  },
-});
-const cloudinaryMulter = multer({ storage: storage });
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/:postID", async (req, res) => {
   try {
-    const newComment = await Comment.create(req.body); //.create IS A SEQUELIZE METHOD DOR MODELS, IT CREATES A NEW ROW IN THE TABLE
+    const newComment = await Comment.create({
+      ...req.body,
+      userId: req.user.dataValues.id,
+      postId: req.params.postID,
+    }); //.create IS A SEQUELIZE METHOD DOR MODELS, IT CREATES A NEW ROW IN THE TABLE
     res.status(201).send(newComment);
   } catch (error) {
     console.log(error);
@@ -30,10 +23,15 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const allComments = await Comment.findAll({
+    const allUserComments = await Comment.findAll({
       include: [Post, User, CommentLike, Reply],
+      where: { userId: req.user.dataValues.id },
     });
-    res.send(allComments);
+    if (allUserComments) {
+      res.send(allUserComments);
+    } else {
+      res.status(404).send("You have no comments! Get chatting!");
+    }
   } catch (error) {
     console.log(error);
     res.status(500).send("Something went bad!");
@@ -54,8 +52,15 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    await Comment.destroy({ where: { id: req.params.id } });
-    res.send("comment destroyed");
+    const commentToDelete = await Comment.findByPk(req.params.id);
+    if (commentToDelete.dataValues.userId === req.user.dataValues.id) {
+      await Comment.destroy({ where: { id: req.params.id } });
+      res.send("comment destroyed");
+    } else {
+      res
+        .status(401)
+        .send("Unauthorized: Don't try to delete other peoples comments!");
+    }
   } catch (error) {
     console.log(error);
     res.status(500).send("Something went bad!");
@@ -64,35 +69,20 @@ router.delete("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const alteredComment = await Comment.update(req.body, {
-      where: { id: req.params.id },
-      returning: true,
-    });
-    res.send(alteredComment);
+    const commentToUpdate = await Comment.findByPk(req.params.id);
+    if (commentToUpdate.dataValues.userId === req.user.dataValues.id) {
+      const alteredComment = await Comment.update(req.body, {
+        where: { id: req.params.id },
+        returning: true,
+      });
+      res.send(alteredComment);
+    } else {
+      res.status(401).send("Unauthorized: This is not your comment!");
+    }
   } catch (error) {
     console.log(error);
     res.status(500).send("Something went bad!");
   }
 });
-
-router.post(
-  "/:id/upload",
-  cloudinaryMulter.single("CommentImage"),
-  async (req, res) => {
-    try {
-      const alteredComment = await Comment.update(
-        { imgurl: req.file.path },
-        {
-          where: { id: req.params.id },
-          returning: true,
-        }
-      );
-      res.send(alteredComment);
-    } catch (error) {
-      console.log(error);
-      res.status(500).send("Something went bad!");
-    }
-  }
-);
 
 module.exports = router;

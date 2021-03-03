@@ -12,19 +12,20 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "samples",
+    folder: "BW4",
   },
 });
 const cloudinaryMulter = multer({ storage: storage });
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/", cloudinaryMulter.single("PostImage"), async (req, res) => {
   try {
     const newPost = await Post.create({
       ...req.body,
       userId: req.user.dataValues.id,
-    }); //.create IS A SEQUELIZE METHOD DOR MODELS, IT CREATES A NEW ROW IN THE TABLE
+      imgurl: req.file.path,
+    });
     res.status(201).send(newPost);
   } catch (error) {
     console.log(error);
@@ -100,23 +101,5 @@ router.put("/:id", async (req, res) => {
     res.status(500).send("Something went bad!");
   }
 });
-
-router.post(
-  "/:id/upload",
-  cloudinaryMulter.single("PostImage"),
-  async (req, res) => {
-    try {
-      const alteredPost = await Post.create({
-        ...req.body,
-        userId: req.profile.Id,
-        imgurl: req.file.path,
-      });
-      res.send(alteredPost);
-    } catch (error) {
-      console.log(error);
-      res.status(500).send("Something went bad!");
-    }
-  }
-);
 
 module.exports = router;

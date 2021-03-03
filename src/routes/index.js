@@ -1,5 +1,5 @@
 const express = require("express");
-const authenticate = require("../authenticate");
+const { authenticate } = require("../authenticate");
 const router = express.Router();
 const userRoute = require("./users");
 const postRoute = require("./posts");
@@ -8,8 +8,8 @@ const commentRoute = require("./comments");
 const likeRoute = require("./like");
 const followRoute = require("./follow");
 const commentLikeRoute = require("./commentlikes");
-const savedRoute = require("./savedPosts");
 const storyRoute = require("./story");
+const savedPostRoute = require("./savedPosts");
 
 router.use("/users", userRoute);
 router.use("/posts", authenticate, postRoute);
@@ -18,6 +18,6 @@ router.use("/comments", authenticate, commentRoute);
 router.use("/like", authenticate, likeRoute);
 router.use("/follow", authenticate, followRoute);
 router.use("/commentlike", authenticate, commentLikeRoute);
-router.use("/savedposts", authenticate, savedRoute);
 router.use("/story", authenticate, storyRoute);
+router.use("/savedposts", authenticate, savedPostRoute);
 module.exports = router;
