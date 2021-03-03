@@ -55,7 +55,14 @@ router.route("/login").post(async (req, res, next) => {
 router.get("/", authenticate, async (req, res) => {
   try {
     const allUser = await User.findAll({
-      include: [Post, Follow, Follower, Story, StoryAlbum, Tagged],
+      include: [
+        Post,
+        { model: Follow, include: [{ model: User, as: "following" }] },
+        { model: Follower, include: [{ model: User, as: "follower" }] },
+        Story,
+        StoryAlbum,
+        Tagged,
+      ],
     }); //.findAll RETURNS ALL OF THE ArticleS. include:[] IS AN ARRAY THAT CONNECTS MODELS WITH THE REQUEST. THIS IS DONE SO AUTHORID CAN GET THE CORRESPONDING AUTHOR OBJECT
     res.send(allUser);
   } catch (error) {
@@ -70,8 +77,8 @@ router.get("/:id", authenticate, async (req, res) => {
       const singleUser = await User.findByPk(req.params.id, {
         include: [
           Post,
-          Follow,
-          Follower,
+          { model: Follow, include: [{ model: User, as: "following" }] },
+          { model: Follower, include: [{ model: User, as: "follower" }] },
           Story,
           StoryAlbum,
           Tagged,
