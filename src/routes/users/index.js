@@ -59,7 +59,7 @@ router.route("/login").post(async (req, res, next) => {
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
         });
-        res.send({ userid: user.id });
+        res.redirect(process.env.FE_URL + "/?id=" + user.id);
       } else {
         res.status(401).send("Incorret Username or Password");
       }
