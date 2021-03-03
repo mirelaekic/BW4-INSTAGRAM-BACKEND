@@ -7,7 +7,17 @@ const StoryAlbum = require("../../database").StoryAlbum;
 const Tagged = require("../../database").Tagged;
 const Message = require("../../database").Message;
 const SavedPost = require("../../database").SavedPost;
+const multer = require("multer");
+const cloudinary = require("../../cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "BW4",
+  },
+});
+const cloudinaryMulter = multer({ storage: storage });
 const jwt = require("jsonwebtoken");
 const authenticate = require("../../authenticate");
 const router = require("express").Router();
@@ -124,5 +134,30 @@ router.put("/:id", authenticate, async (req, res) => {
     res.status(500).send("Something went wrong!");
   }
 });
+
+router.put(
+  "/:id/upload",
+  authenticate,
+  cloudinaryMulter.single("ProfilePic"),
+  async (req, res) => {
+    try {
+      if (req.user.dataValues.id.toString() === req.params.id) {
+        const alteredIMG = await User.update(
+          { ...req.body, imgurl: req.file.path },
+          {
+            where: { id: req.params.id },
+            returning: true,
+          }
+        );
+        res.send(alteredIMG);
+      } else {
+        res.status(401).send("Unauthorized: This is not your account!");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Something went bad!");
+    }
+  }
+);
 
 module.exports = router;
