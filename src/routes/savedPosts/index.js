@@ -29,33 +29,35 @@ router.post("/:postId", async (req, res) => {
   }
 });
 
-router.get("/:userId/", async (req, res) => {
-  try {
-    const savedposts = await SavedPost.count({
-      where: { postId: req.params.postId },
-    });
-    const savedpost = await SavedPost.findOne({
-      where: { userId: req.params.userId, postId: req.params.postId },
-    });
-    const data = {
-      total: savedposts,
-    };
-    if (savedpost) {
-      data.isSaved = true;
-    } else {
-      data.isSaved = false;
-    }
+// router.get("/:postId/", async (req, res) => {
+//   try {
+//     const savedposts = await SavedPost.count({
+//       where: { postId: req.params.postId },
+//     });
+//     const savedpost = await SavedPost.findOne({
+//       where: { userId: req.params.userId, postId: req.params.postId },
+//     });
+//     const data = {
+//       total: savedposts,
+//     };
+//     if (savedpost) {
+//       data.isSaved = true;
+//     } else {
+//       data.isSaved = false;
+//     }
 
-    res.send(data);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Something went bad!");
-  }
-});
+//     res.send(data);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send("Something went bad!");
+//   }
+// });
 
 router.delete("/:id", async (req, res) => {
   try {
-    await SavedPost.destroy({ where: { id: req.params.id } });
+    await SavedPost.destroy({
+      where: { userId: req.user.dataValues.id, postId: req.params.postId },
+    });
     res.send("savedpost removed");
   } catch (error) {
     console.log(error);
