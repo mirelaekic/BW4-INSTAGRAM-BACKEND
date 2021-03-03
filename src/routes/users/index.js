@@ -19,7 +19,7 @@ const storage = new CloudinaryStorage({
 });
 const cloudinaryMulter = multer({ storage: storage });
 const jwt = require("jsonwebtoken");
-const authenticate = require("../../authenticate");
+const { authenticate, refreshToken } = require("../../authenticate");
 const router = require("express").Router();
 
 router.route("/register").post(async (req, res, next) => {
@@ -53,7 +53,13 @@ router.route("/login").post(async (req, res, next) => {
           process.env.JWT_REFRESH_KEY,
           { expiresIn: "1w" }
         );
-        res.send({ accessToken, refreshToken });
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+        });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+        });
+        res.send({ userid: user.id });
       } else {
         res.status(401).send("Incorret Username or Password");
       }
@@ -159,5 +165,24 @@ router.put(
     }
   }
 );
+
+router.route("/refresh/token").post(async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    const newTokens = await refreshToken(refreshToken);
+    console.log(newTokens);
+    res.cookie("accessToken", newTokens.accessToken, {
+      httpOnly: true,
+    });
+    res.cookie("refreshToken", newTokens.refreshToken, {
+      httpOnly: true,
+      path: "/insta/users/refresh/token",
+    });
+    res.send("Tokens Regenrated!");
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
 
 module.exports = router;

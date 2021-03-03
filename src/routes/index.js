@@ -1,5 +1,5 @@
 const express = require("express");
-const authenticate = require("../authenticate");
+const { authenticate } = require("../authenticate");
 const router = express.Router();
 const userRoute = require("./users");
 const postRoute = require("./posts");
