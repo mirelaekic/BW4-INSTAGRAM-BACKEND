@@ -70,7 +70,18 @@ router.get("/:userId/:followId", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    await Follow.destroy({ where: { id: req.params.id } });
+    await Follow.destroy({
+      where: {
+        userId: req.user.dataValues.id,
+        following_id: req.params.userId,
+      },
+    });
+    await Follower.destroy({
+      where: {
+        userId: req.params.userId,
+        follower_id: req.user.dataValues.id,
+      },
+    });
     res.send("follow removed");
   } catch (error) {
     console.log(error);
