@@ -46,7 +46,7 @@ router.route("/login").post(async (req, res, next) => {
         const accessToken = await jwt.sign(
           { id: user.id },
           process.env.JWT_KEY,
-          { expiresIn: "15m" }
+          { expiresIn: "30m" }
         );
         const refreshToken = await jwt.sign(
           { id: user.id },
