@@ -11,7 +11,7 @@ const database = require("./database");
 const port = process.env.PORT || 9001;
 
 const server = express();
-const whitelist = ["http://localhost:3000","http://localhost:3000/login","http://localhost:9001",process.env.FRONT_URL];
+const whitelist = [process.env.FRONT_URL];
 const corsOptions = {
   origin: (origin, callback) => {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -21,6 +21,7 @@ const corsOptions = {
     }
   },
   credentials: true,
+  exposedHeaders:["set-cookie"]
 };
 server.use(cors(corsOptions));
 server.use(cookieParser());
