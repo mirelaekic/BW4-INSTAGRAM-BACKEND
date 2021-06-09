@@ -53,12 +53,16 @@ router.route("/login").post(async (req, res, next) => {
           process.env.JWT_REFRESH_KEY,
           { expiresIn: "1w" }
         );
-        res.cookie("accessToken", accessToken, {
-          httpOnly: true,
-        });
-        res.cookie("refreshToken", refreshToken, {
-          httpOnly: true,
-        });
+        res.cookie("accessToken", accessToken,  {
+        httpOnly: true,
+        secure:true,
+        sameSite:"none"
+      });
+        res.cookie("refreshToken", refreshToken,  {
+        httpOnly: true,
+        secure:true,
+        sameSite:"none"
+      });
         res.send(user)
       } else {
         res.status(401).send("Incorret Username or Password");
@@ -177,8 +181,16 @@ router.route("/refresh/token").post(async (req, res, next) => {
     const ref = req.cookies.refreshToken;
     const newTokens = await refreshToken(ref);
     console.log(newTokens);
-    res.cookie("accessToken", newTokens.accessToken);
-    res.cookie("refreshToken", newTokens.refreshToken);
+    res.cookie("accessToken", newTokens.accessToken,{
+        httpOnly: true,
+        secure:true,
+        sameSite:"none"
+      });
+    res.cookie("refreshToken", newTokens.refreshToken, {
+        httpOnly: true,
+        secure:true,
+        sameSite:"none"
+      });
     res.send("Tokens Regenrated!");
   } catch (error) {
     console.log(error);
