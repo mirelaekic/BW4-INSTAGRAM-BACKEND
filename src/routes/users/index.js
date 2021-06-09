@@ -197,5 +197,10 @@ router.route("/refresh/token").post(async (req, res, next) => {
     next(error);
   }
 });
+router.get('/logout', function (req, res) {
+  res.clearCookie('refreshToken');
+  res.clearCookie('accessToken')
+  res.redirect('/login');
+});
 
 module.exports = router;
