@@ -180,13 +180,13 @@ router.route("/refresh/token").post(async (req, res, next) => {
     res.cookie("accessToken", newTokens.accessToken, {
         secure: false,
         httpOnly: true,
-        sameSite:"none",
+        SameSite:"none",
         path:"/"
     });
     res.cookie("refreshToken", newTokens.refreshToken, {
         secure: false,
         httpOnly: true,
-        sameSite:"none",
+        SameSite:"none",
         path:"/"
     });
     res.send("Tokens Regenrated!");
