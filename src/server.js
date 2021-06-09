@@ -11,21 +11,19 @@ const database = require("./database");
 const port = process.env.PORT || 9001;
 
 const server = express();
-const whitelist = [process.env.FRONT_URL];
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  exposedHeaders:["set-cookie"]
-};
-server.use(cors(corsOptions));
-server.use(cookieParser());
+server.set("trust proxy",1)
+server.enable("trust proxy")
 server.use(express.json());
+
+server.use(cors({
+  origin: [
+    process.env.FRONT_URL,
+    "http://localhost:3000"
+  ],
+  credentials:true,
+  exposedHeaders: ["set-cookie"]
+}))
+server.use(cookieParser());
 
 server.use("/insta", servicesRouter);
 database.sequelize.sync({ force: false }).then(() => {
