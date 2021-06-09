@@ -174,8 +174,8 @@ router.put(
 
 router.route("/refresh/token").post(async (req, res, next) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
-    const newTokens = await refreshToken(refreshToken);
+    const ref = req.cookies.refreshToken;
+    const newTokens = await refreshToken(ref);
     console.log(newTokens);
     res.cookie("accessToken", newTokens.accessToken, {
       httpOnly: true,
