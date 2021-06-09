@@ -10,13 +10,14 @@ const SavedPost = require("../../database").SavedPost;
 const multer = require("multer");
 const cloudinary = require("../../cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
+const {deleteCookies} = require("./auth")
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "BW4",
   },
 });
+const {FRONT_URL} = process.env
 const cloudinaryMulter = multer({ storage: storage });
 const jwt = require("jsonwebtoken");
 const { authenticate, refreshToken } = require("../../authenticate");
@@ -197,10 +198,15 @@ router.route("/refresh/token").post(async (req, res, next) => {
     next(error);
   }
 });
-router.get('/logout', function (req, res) {
-  res.clearCookie('refreshToken');
-  res.clearCookie('accessToken')
-  res.redirect('/login');
-});
+router.post("/logout", async (req, res, next) => {
+  try {
+    const clearCookies = await deleteCookies(res);
+    res.redirect(`${FRONT_URL}/login`);
+  } catch (err) {
+    console.log(err);
+    const error = new Error("Something went wrong");
+    error.code = 401;
+    next(error);
+  }
 
 module.exports = router;
