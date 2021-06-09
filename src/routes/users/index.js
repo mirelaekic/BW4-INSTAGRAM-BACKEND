@@ -181,13 +181,15 @@ router.route("/refresh/token").post(async (req, res, next) => {
         maxAge: 24 * 60 * 60 * 100,
         secure: true,
         httpOnly: true,
-        sameSite: 'none'
+        sameSite:"strict",
+        sameSite:"none"
     });
     res.cookie("refreshToken", newTokens.refreshToken, {
         maxAge: 24 * 60 * 60 * 100,
         secure: true,
         httpOnly: true,
-        sameSite: 'none'
+        sameSite:"strict",
+        sameSite:"none"
     });
     res.send("Tokens Regenrated!");
   } catch (error) {
