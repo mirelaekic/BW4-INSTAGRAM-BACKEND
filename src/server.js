@@ -18,6 +18,8 @@ server.use(express.json());
 server.use(cors({
   origin: [
     process.env.FRONT_URL,
+    "https://instagram-mirelaekic.vercel.app/",
+    "https://instagram-git-main-mirelaekic.vercel.app/",
     "http://localhost:3000"
   ],
   credentials:true,
