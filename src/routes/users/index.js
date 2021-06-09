@@ -208,5 +208,6 @@ router.post("/logout", async (req, res, next) => {
     error.code = 401;
     next(error);
   }
+})
 
 module.exports = router;
