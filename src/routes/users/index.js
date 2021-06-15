@@ -11,6 +11,8 @@ const multer = require("multer");
 const cloudinary = require("../../cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const {deleteCookies} = require("./auth")
+const Pusher = require("pusher");
+
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -22,7 +24,7 @@ const cloudinaryMulter = multer({ storage: storage });
 const jwt = require("jsonwebtoken");
 const { authenticate, refreshToken } = require("../../authenticate");
 const router = require("express").Router();
-
+const { getAllUserChats } = require("../../socket/chatrooms");
 router.route("/register").post(async (req, res, next) => {
   try {
     const newUser = await User.create({
@@ -36,6 +38,19 @@ router.route("/register").post(async (req, res, next) => {
     next(error);
   }
 });
+
+router.get("/logout", async (req, res, next) => {
+  try {
+    await deleteCookies(res);
+    //return res.redirect(`${FRONT_URL}/login`);
+    return res.redirect("http://localhost:3000/login")
+  } catch (err) {
+    console.log(err);
+    const error = new Error("Something went wrong");
+    error.code = 401;
+    next(error);
+  }
+})
 
 router.route("/login").post(async (req, res, next) => {
   try {
@@ -56,15 +71,15 @@ router.route("/login").post(async (req, res, next) => {
         );
         res.cookie("accessToken", accessToken,  {
         httpOnly: true,
-        secure:true,
-        sameSite:"none"
+         secure:true,
+         sameSite:"none"
       });
         res.cookie("refreshToken", refreshToken,  {
         httpOnly: true,
-        secure:true,
-        sameSite:"none"
+         secure:true,
+         sameSite:"none"
       });
-        res.send(user)
+       res.send(user)
       } else {
         res.status(401).send("Incorret Username or Password");
       }
@@ -76,13 +91,13 @@ router.route("/login").post(async (req, res, next) => {
     next(error);
   }
 });
-router.get("/me", authenticate,async (req,res,next) => {
-  try {
-    res.send(req.user.dataValues)
-  } catch (error) {
-    res.send(401).send("fuk")
-  }
-})
+// router.get("/me", authenticate,async (req,res,next) => {
+//   try {
+//     res.send(req.user.dataValues)
+//   } catch (error) {
+//     res.send(401).send("fuk")
+//   }
+// })
 router.get("/", authenticate, async (req, res) => {
   try {
     const allUser = await User.findAll({
@@ -101,17 +116,37 @@ router.get("/", authenticate, async (req, res) => {
     res.status(500).send("Something went wrong!");
   }
 });
-
+router.get("/me",authenticate,async (req,res) => {
+  try {
+      const singleUser = await User.findByPk(req.user.dataValues.id, {
+        include: [
+          Post,
+          { model: Follow, include: [{ model: User, as: "following" }] },
+          { model: Follower, include: [{ model: User, as: "follower" }] },
+          Story,
+          StoryAlbum, 
+          Tagged,
+          Message,
+          SavedPost,
+        ],
+      });
+      res.send(singleUser)
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Something went wrong!");
+  }
+})
 router.get("/:id", authenticate, async (req, res) => {
   try {
     if (req.user.dataValues.id.toString() === req.params.id) {
+      console.log("The user MACHES")
       const singleUser = await User.findByPk(req.params.id, {
         include: [
           Post,
           { model: Follow, include: [{ model: User, as: "following" }] },
           { model: Follower, include: [{ model: User, as: "follower" }] },
           Story,
-          StoryAlbum,
+          StoryAlbum, 
           Tagged,
           Message,
           SavedPost,
@@ -133,7 +168,19 @@ router.get("/:id", authenticate, async (req, res) => {
     res.status(500).send("Something went wrong!");
   }
 });
-
+router.delete("/:id", authenticate, async (req,res) => {
+  try {
+    if(req.user.dataValues.id.toString() === req.params.id){
+       await User.destroy({
+        where: {id: req.user.dataValues.id}
+      })
+      res.send("user deleted")
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).send("Something went wrong")
+  }
+})
 router.put("/:id", authenticate, async (req, res) => {
   try {
     if (req.user.dataValues.id.toString() === req.params.id) {
@@ -142,6 +189,7 @@ router.put("/:id", authenticate, async (req, res) => {
         include: [Post, Follow, Follower, Story, StoryAlbum, Tagged, Message],
         returning: true,
       });
+      console.log(alteredUser,"THE UPDATED USER ---------")
       res.send(alteredUser);
     } else {
       res.status(401).send("Unauthorized: This is not your account!");
@@ -151,7 +199,6 @@ router.put("/:id", authenticate, async (req, res) => {
     res.status(500).send("Something went wrong!");
   }
 });
-
 router.put(
   "/:id/upload",
   authenticate,
@@ -175,8 +222,7 @@ router.put(
       res.status(500).send("Something went bad!");
     }
   }
-);
-
+  );
 router.route("/refresh/token").post(async (req, res, next) => {
   try {
     const ref = req.cookies.refreshToken;
@@ -184,7 +230,7 @@ router.route("/refresh/token").post(async (req, res, next) => {
     console.log(newTokens);
     res.cookie("accessToken", newTokens.accessToken,{
         httpOnly: true,
-        secure:true,
+         secure:true,
         sameSite:"none"
       });
     res.cookie("refreshToken", newTokens.refreshToken, {
@@ -198,16 +244,16 @@ router.route("/refresh/token").post(async (req, res, next) => {
     next(error);
   }
 });
-router.post("/logout", async (req, res, next) => {
+router.get("/give/me/those/chats", authenticate, async (req, res) => {
   try {
-    const clearCookies = await deleteCookies(res);
-    res.redirect(`${FRONT_URL}/login`);
-  } catch (err) {
-    console.log(err);
-    const error = new Error("Something went wrong");
-    error.code = 401;
-    next(error);
+    const allChats = await getAllUserChats(req.user.dataValues.id);
+    res.send(allChats);
+    console.log(allChats,"ALL CHATS")
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("aw fuck");
   }
-})
+});
+
 
 module.exports = router;

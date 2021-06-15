@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
     },
-    {
+    { 
       hooks: {
         // triggered before you creating new row in db (User.create())
         beforeCreate: async function (user) {
